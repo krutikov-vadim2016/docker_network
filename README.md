@@ -1,6 +1,9 @@
-## Docker + php-fpm + PhpStorm + Xdebug
+## Docker for bitrix
 
-Подробности на https://habr.com/ru/post/473184/
+## Конфигурация
+1. MariaDb 5.5
+2. php-fpm 7.0
+
 
 
 
