@@ -1,33 +1,19 @@
 version: '3'
 services:
-    php71-first:
+    php70-first:
       build:
-        context: ./images/php71
+        context: ./images/php70
         args:
           - USER_ID
           - GROUP_ID
       volumes:
         - ./www:/var/www
-        - ./aliases/php71/bash.bashrc:/etc/bash.bashrc
-      environment:
-        XDEBUG_CONFIG: "remote_host=192.168.220.1 remote_enable=1 remote_autostart=off  remote_port=9008"
-        PHP_IDE_CONFIG: "serverName=first"
+        - ./aliases/php70/bash.bashrc:/etc/bash.bashrc
+      #environment:
+      #  XDEBUG_CONFIG: "remote_host=192.168.220.1 remote_enable=1 remote_autostart=off  remote_port=9008"
+      #  PHP_IDE_CONFIG: "serverName=first"
       networks:
-        - test-network
-    php71-two:
-      build:
-        context: ./images/php71
-        args:
-          - USER_ID
-          - GROUP_ID
-      volumes:
-        - ./www:/var/www
-        - ./aliases/php71/bash.bashrc:/etc/bash.bashrc
-      environment:
-        XDEBUG_CONFIG: "remote_host=192.168.220.1 remote_enable=1 remote_autostart=off  remote_port=9009"
-        PHP_IDE_CONFIG: "serverName=two"
-      networks:
-        - test-network
+        - server-70-maria5
     nginx-test:
       image: nginx
       volumes:
@@ -35,29 +21,30 @@ services:
         - ./www:/var/www
         - ./logs:/var/log/nginx
       ports:
-        - "8080:80"
+        - "80:80"
+        - "443:443"
       depends_on:
-        - php71-first
-        - php71-two
+        - php70-first
       networks:
-        test-network:
+        server-70-maria5:
           aliases: # алиасы нужны если нужно общаться внутри сети между хостами. Например, если вы используете api
-            - first.loc
-            - two.loc
-#    mysql:
-#      image: mysql:5.7
-#      ports:
-#        - "3306:3306"
-#      volumes:
-#        - ./mysql/data:/var/lib/mysql
-#      environment:
-#        MYSQL_ROOT_PASSWORD: secret
-#      networks:
-#        - test-network
+            - magizoo.loc
+            - magizoo-red.loc
+    mysql:
+      image: mariadb:5.5
+      ports:
+        - "3306:3306"
+      volumes:
+        - ./mysql/data:/var/lib/mysql
+        - ./my.cnf:/etc/mysql/my.cnf
+      environment:
+        MYSQL_ROOT_PASSWORD: secret
+      networks:
+        - server-70-maria5
 networks:
-  test-network:
+  server-70-maria5:
     driver: bridge
     ipam:
       driver: default
       config:
-        - subnet: 192.168.220.0/28
+        - subnet: 192.168.100.0/28
